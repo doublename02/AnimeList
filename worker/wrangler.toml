@@ -1,0 +1,18 @@
+name = "anime-shelf-sync"
+main = "index.mjs"
+compatibility_date = "2026-10-18"
+workers_dev = true
+
+[vars]
+FRONTEND_URL = "https://doublename02.github.io/AnimeList/"
+GITHUB_OWNER = "doublename02"
+GITHUB_REPO = "AnimeList"
+GITHUB_BRANCH = "main"
+GITHUB_REPOSITORY_ID = "1423929539"
+ALLOWED_USER_ID = "113842800"
+ALLOWED_LOGIN = "doublename02"
+# Set GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET and SESSION_SECRET as Worker secrets.
+# No GitHub private key or personal access token is needed.
+
+[observability]
+enabled = false

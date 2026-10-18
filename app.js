@@ -1,30 +1,18 @@
 import { discoverSeasons, isSeasonSubject, organizeEntries, sortByAdded } from './series.mjs?v=sort-direction-2';
+import { normalizeLibrary as normalize, safeCover } from './library.mjs';
+import { GitHubSync } from './sync.mjs';
 const $ = s => document.querySelector(s);
 const seasons = {winter:'冬',spring:'春',summer:'夏',autumn:'秋'};
 const KEY = 'anime-shelf-v1';
 let library = [], editing = null, searchController, pendingAdditions = [];
 const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-function safeCover(value) {
-  if (typeof value !== 'string') return '';
-  if (/^https:\/\//i.test(value)) return value;
-  if (/^AnimeList\/Covers\/[\w\-\u0080-\uffff/.]+$/.test(value) && !value.includes('..')) return value;
-  return '';
-}
-function normalize(items) {
-  if (!Array.isArray(items) || items.length > 10000) throw new Error('清单应为作品数组，最多 10000 条');
-  const ids = new Set();
-  return items.map(x => {
-    if (!x || !Number.isSafeInteger(Number(x.id)) || Number(x.id) <= 0 || typeof x.title !== 'string' || !x.title.trim() || ids.has(Number(x.id))) throw new Error('作品 ID、名称无效，或存在重复作品');
-    ids.add(Number(x.id));
-    const group=Number.isSafeInteger(Number(x.seriesId))&&Number(x.seriesId)>0?{seriesId:Number(x.seriesId),seriesTitle:String(x.seriesTitle||'').slice(0,200),seriesOrder:Math.max(1,Math.min(10000,Number(x.seriesOrder)||1)),sourceTitle:String(x.sourceTitle||x.title).slice(0,200)}:{};
-    return {id:Number(x.id),title:x.title.slice(0,200),original:String(x.original || '').slice(0,200),cover:safeCover(x.cover),studio:String(x.studio || '').slice(0,200),year:Number(x.year)>=1900 && Number(x.year)<=2200 ? Number(x.year) : '',season:seasons[x.season]?x.season:'',date:String(x.date || ''),note:String(x.note || '').slice(0,2000),addedAt:Number.isFinite(Date.parse(x.addedAt))?x.addedAt:new Date().toISOString(),...group};
-  });
-}
 function toast(message) { $('#toast').textContent=message; $('#toast').classList.add('show'); clearTimeout(toast.timer); toast.timer=setTimeout(()=>$('#toast').classList.remove('show'),4000); }
+let syncManager;
 function save(next) {
-  try { localStorage.setItem(KEY,JSON.stringify(next)); library=next; render(); return true; }
-  catch { toast('浏览器无法保存，请先导出清单备份后重试'); return false; }
+  try { syncManager.setLibrary(next); return true; }
+  catch(error) { toast(error.message); return false; }
 }
+function requireAdmin(){if(syncManager?.canEdit)return true;toast('请先使用 GitHub 管理员账号登录');return false;}
 function render() {
   const previous = $('#year').value;
   $('#year').innerHTML='<option value="">所有年份</option>'+[...new Set(library.map(x=>x.year).filter(Boolean))].sort((a,b)=>b-a).map(y=>`<option>${y}</option>`).join('');
@@ -39,7 +27,7 @@ function render() {
     return direction==='asc'?comparison:-comparison;
   });
   $('#count').textContent=list.length;
-  $('#grid').innerHTML=list.length?list.map(x=>`<article class="card"><button class="cover-button" data-edit="${x.id}" aria-label="编辑 ${escape(x.title)}"><img class="poster" src="${escape(x.cover)}" alt="${escape(x.title)}封面" loading="lazy" referrerpolicy="no-referrer"></button><h3 title="${escape(x.title)}">${escape(x.title)}</h3><p class="original">${escape(x.original)}</p><div class="meta"><span>${escape(x.studio||'制作公司待补充')}</span><span>${x.year||'未知'}${seasons[x.season]?' · '+seasons[x.season]:''}</span></div></article>`).join(''):'<div class="empty">书架在等下一个故事。<br><br>添加一部作品，或调整筛选条件。</div>';
+  $('#grid').innerHTML=list.length?list.map(x=>`<article class="card"><button class="cover-button" data-edit="${x.id}" aria-label="${syncManager?.canEdit?'编辑':'查看'} ${escape(x.title)}"><img class="poster" src="${escape(x.cover)}" alt="${escape(x.title)}封面" loading="lazy" referrerpolicy="no-referrer"></button><h3 title="${escape(x.title)}">${escape(x.title)}</h3><p class="original">${escape(x.original)}</p><div class="meta"><span>${escape(x.studio||'制作公司待补充')}</span><span>${x.year||'未知'}${seasons[x.season]?' · '+seasons[x.season]:''}</span></div></article>`).join(''):'<div class="empty">书架在等下一个故事。<br><br>添加一部作品，或调整筛选条件。</div>';
   $('#grid').querySelectorAll('img').forEach(img=>img.onerror=()=>{img.removeAttribute('src');img.onerror=null;});
 }
 async function request(path, options={}) {
@@ -54,19 +42,22 @@ function edit(item, existing=false, additions=[]) {
   for(const key of ['title','original','studio','year','season','note']) form.elements[key].value=item[key]??'';
   $('#editCover').src=safeCover(item.cover); $('#editCover').referrerPolicy='no-referrer';
   $('#source').href=`https://bgm.tv/subject/${item.id}`;
-  $('#delete').hidden=!existing;
-  $('#editTitle').textContent=existing?'编辑作品':'确认作品资料';
+  const editable=!!syncManager?.canEdit;
+  for(const field of form.elements)if(field.name)field.disabled=!editable;
+  $('#saveEntry').hidden=!editable;
+  $('#delete').hidden=!existing||!editable;
+  $('#editTitle').textContent=!editable?'作品资料':existing?'编辑作品':'确认作品资料';
   $('#seriesSummary').hidden=!additions.length;
   $('#seriesSummary').textContent=additions.length?`保存后将整理 ${additions.length} 个条目（新增 ${additions.filter(x=>!library.some(y=>y.id===x.id)).length} 个）：${additions.map(x=>x.title).join('、')}`:'';
   $('#editDialog').showModal();
 }
-$('#add').onclick=()=>{$('#searchDialog').showModal();$('#query').focus();};
+$('#add').onclick=()=>{if(!requireAdmin())return;$('#searchDialog').showModal();$('#query').focus();};
 document.querySelectorAll('.close').forEach(button=>button.onclick=()=>button.closest('dialog').close());
 $('#searchDialog').addEventListener('close',()=>searchController?.abort());
 for(const selector of ['#filter','#year','#season','#sort','#direction']) $(selector).addEventListener(selector==='#filter'?'input':'change',render);
 $('#grid').onclick=e=>{const button=e.target.closest('[data-edit]');if(button)edit(library.find(x=>x.id===Number(button.dataset.edit)),true);};
 $('#searchForm').onsubmit=async e=>{
-  e.preventDefault(); const query=$('#query').value.trim(); if(!query)return;
+  e.preventDefault(); if(!requireAdmin())return; const query=$('#query').value.trim(); if(!query)return;
   searchController?.abort(); searchController=new AbortController();
   const controller=searchController;
   $('#results').innerHTML='<p class="empty">正在搜索 Bangumi…</p>';
@@ -78,7 +69,7 @@ $('#searchForm').onsubmit=async e=>{
   }catch(error){if(error.name!=='AbortError')$('#results').innerHTML=`<p class="empty">${escape(error.name==='TimeoutError'?'搜索超时，请重试':error.message)}<br><br>请检查网络后重新搜索。</p>`;}
 };
 $('#results').onclick=async e=>{
-  const button=e.target.closest('[data-subject]');if(!button)return;
+  const button=e.target.closest('[data-subject]');if(!button||!requireAdmin())return;
   const buttons=[...$('#results').querySelectorAll('button'),$('#searchForm button')];
   buttons.forEach(x=>x.disabled=true);button.textContent='检查季度…';
   searchController?.abort();searchController=new AbortController();
@@ -106,15 +97,70 @@ $('#results').onclick=async e=>{
   }catch(error){if(error.name!=='AbortError')toast(error.message||'读取失败，请重试');}
   finally{buttons.forEach(x=>x.disabled=false);button.textContent='＋ 收藏';}
 };
-$('#editForm').onsubmit=e=>{e.preventDefault();const values=Object.fromEntries(new FormData(e.target));const item=normalize([{...editing,...values}])[0];const changes=normalize(pendingAdditions.length?pendingAdditions.map(x=>x.id===item.id?item:x):[item]);const ids=new Set(changes.map(x=>x.id));const next=[...library.filter(x=>!ids.has(x.id)),...changes];if(save(next)){$('#editDialog').close();toast(`已保存 ${changes.length} 个条目到当前浏览器`);}};
-$('#delete').onclick=()=>{if(confirm('确定从书架移除这部作品？')){if(save(library.filter(x=>x.id!==editing.id))){$('#editDialog').close();toast('已移除作品');}}};
+$('#editForm').onsubmit=e=>{e.preventDefault();if(!requireAdmin())return;const values=Object.fromEntries(new FormData(e.target));const item=normalize([{...editing,...values}])[0];const changes=normalize(pendingAdditions.length?pendingAdditions.map(x=>x.id===item.id?item:x):[item]);const ids=new Set(changes.map(x=>x.id));const next=[...library.filter(x=>!ids.has(x.id)),...changes];if(save(next)){$('#editDialog').close();toast(`已保存 ${changes.length} 个条目，正在同步 GitHub`);}};
+$('#delete').onclick=()=>{if(!requireAdmin())return;if(confirm('确定从书架移除这部作品？')){if(save(library.filter(x=>x.id!==editing.id))){$('#editDialog').close();toast('已移除作品，正在同步 GitHub');}}};
 $('#export').onclick=()=>{const url=URL.createObjectURL(new Blob([JSON.stringify(library,null,2)+'\n'],{type:'application/json'}));const link=document.createElement('a');link.href=url;link.download='library.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('清单已导出，可替换仓库中的 data/library.json');};
-$('#import').onclick=()=>$('#file').click();
-$('#file').onchange=async e=>{const file=e.target.files[0];if(!file)return;try{if(file.size>10000000)throw new Error('文件不能超过 10 MB');const entries=normalize(JSON.parse(await file.text()));if(confirm(`将用文件中的 ${entries.length} 部作品替换当前清单。是否继续？`)&&save(entries))toast('已导入清单');}catch(error){toast('导入失败：'+error.message);}finally{e.target.value='';}};
-try {
-  let saved=null;
-  try{saved=localStorage.getItem(KEY);}catch{toast('浏览器存储不可用，修改前请导出备份');}
-  if(saved!==null){library=normalize(JSON.parse(saved));try{localStorage.setItem(KEY,JSON.stringify(library));}catch{toast('浏览器无法保存，清理旧数据前请导出备份');}}
-  else{const response=await fetch('./data/library.json');if(!response.ok)throw new Error('无法读取清单文件');library=normalize(await response.json());}
+$('#import').onclick=()=>{if(requireAdmin())$('#file').click();};
+$('#file').onchange=async e=>{if(!requireAdmin())return;const file=e.target.files[0];if(!file)return;try{if(file.size>10000000)throw new Error('文件不能超过 10 MB');const entries=normalize(JSON.parse(await file.text()));if(confirm(`将用文件中的 ${entries.length} 部作品替换当前清单。是否继续？`)&&save(entries))toast('已导入清单，正在同步 GitHub');}catch(error){toast('导入失败：'+error.message);}finally{e.target.value='';}};
+const storage={getItem:key=>localStorage.getItem(key),setItem:(key,value)=>localStorage.setItem(key,value),removeItem:key=>localStorage.removeItem(key)};
+const tabStorage={getItem:key=>sessionStorage.getItem(key),setItem:(key,value)=>sessionStorage.setItem(key,value),removeItem:key=>sessionStorage.removeItem(key)};
+let conflictShown=null;
+function paintSync(state){
+  $('#login').textContent=state.user?'退出管理员':'管理员登录';
+  $('#login').disabled=state.phase==='saving';
+  $('#add').hidden=!state.canEdit;$('#import').hidden=!state.canEdit;
+  $('#syncStatus').textContent=state.message;
+  $('#retrySync').hidden=state.phase!=='error'||!state.user;
+  $('#restoreBackup').hidden=!state.canEdit||!(state.hasBackup||hasLegacy());
+  $('#commitLink').hidden=!/^https:\/\/github\.com\/doublename02\/AnimeList\/commit\/[a-f0-9]+$/.test(state.lastCommitUrl);
+  if(!$('#commitLink').hidden)$('#commitLink').href=state.lastCommitUrl;
+  $('.storage').textContent=state.user?'修改自动提交到 GitHub；网络中断时保留本地草稿，公开网页在部署完成后更新。':'访客只读 · 清单从公开网页读取；只有网站所有者登录后才能修改并同步。';
+  if(state.conflict&&state.conflict!==conflictShown){
+    conflictShown=state.conflict;
+    $('#conflictInfo').textContent=state.conflict.conflicts.length?`发现 ${state.conflict.conflicts.length} 部作品存在冲突。未冲突的修改会自动合并，请逐项选择保留的版本。`:'云端有其他修改，本地变更与其不冲突。确认后会合并双方修改再保存。';
+    $('#conflictChoices').innerHTML=state.conflict.conflicts.map(item=>`<label>${escape(item.title)}<span class="muted">${item.wholeEntry?'新增或删除与另一版本冲突':'冲突字段：'+item.fields.join('、')}</span><select data-conflict="${item.id}"><option value="remote">保留云端版本</option><option value="local">保留本地版本</option></select></label>`).join('');
+    $('#conflictDialog').showModal();
+  }
   render();
-}catch(error){$('#grid').innerHTML='<p class="empty">清单加载失败，请检查 data/library.json，或使用“导入清单”恢复备份。</p>';toast(error.message);}
+}
+function hasLegacy(){try{return storage.getItem(KEY)!==null;}catch{return false;}}
+$('#login').onclick=async()=>{
+  try{
+    if(syncManager.user){if(syncManager.dirty&&!confirm('还有未同步的修改，退出后会保留本地草稿。确定退出？'))return;await syncManager.logout();}
+    else await syncManager.login();
+  }catch(error){toast(error.message);if(error.status)syncManager.handleError(error);}
+};
+$('#retrySync').onclick=async()=>{try{if(!syncManager.sha)await syncManager.start(syncManager.publicLoader);else await syncManager.flush();}catch(error){toast(error.message);}};
+$('#refreshCloud').onclick=async()=>{try{await syncManager.refresh();toast('已检查最新清单');}catch(error){toast(error.message);}};
+$('#restoreBackup').onclick=()=>{
+  if(!requireAdmin())return;
+  try{
+    const backup=syncManager.pending?.library||JSON.parse(storage.getItem(KEY)||'null');
+    if(!backup)throw new Error('未找到可恢复的本地备份');
+    const entries=normalize(backup);
+    if(confirm(`恢复本地备份的 ${entries.length} 个条目，并自动提交到 GitHub？建议先导出当前清单。`))save(entries);
+  }catch(error){toast(error.message);}
+};
+$('#mergeForm').onsubmit=e=>{
+  e.preventDefault();try{const choices={};$('#conflictChoices').querySelectorAll('select').forEach(select=>choices[select.dataset.conflict]=select.value);syncManager.applyConflict(choices);$('#conflictDialog').close();conflictShown=null;}catch(error){toast(error.message);}
+};
+$('#useRemote').onclick=()=>{
+  if(!confirm('使用云端清单并放弃本次本地变更？可先点击“导出本地草稿”备份。'))return;
+  try{const conflicts=syncManager.conflict;syncManager.acceptRemote(conflicts.remote);syncManager.persist();syncManager.phase='synced';syncManager.message='已采用云端清单';syncManager.emit();$('#conflictDialog').close();conflictShown=null;}catch(error){toast(error.message);}
+};
+$('#exportConflict').onclick=()=>$('#export').click();
+$('#conflictDialog').addEventListener('cancel',e=>e.preventDefault());
+window.addEventListener('online',()=>syncManager?.flush());
+window.addEventListener('beforeunload',e=>{if(syncManager?.dirty){e.preventDefault();e.returnValue='';}});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&syncManager&&!syncManager.dirty&&!document.querySelector('dialog[open]'))syncManager.refresh().catch(()=>{});});
+try {
+  let config={apiBase:''};
+  const configResponse=await fetch('./sync-config.json',{cache:'no-store'});
+  if(configResponse.ok)config=await configResponse.json();
+  if(config.apiBase){const url=new URL(config.apiBase);if(url.protocol!=='https:'||url.username||url.password||url.pathname!=='/'||url.search||url.hash)throw new Error('同步接口地址无效');}
+  syncManager=new GitHubSync({apiBase:config.apiBase||'',storage,sessionStorage:tabStorage,onLibrary:items=>{library=items;render();},onState:paintSync});
+  let callbackError;
+  try{syncManager.callback(location,history);}catch(error){callbackError=error;}
+  await syncManager.start(async()=>{const response=await fetch('./data/library.json',{cache:'no-store'});if(!response.ok)throw new Error('无法读取公开清单');return response.json();});
+  if(callbackError)toast(callbackError.message);
+}catch(error){$('#syncStatus').textContent='清单加载失败，请检查网络后刷新';toast(error.message);}
