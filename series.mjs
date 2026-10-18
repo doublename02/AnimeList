@@ -103,6 +103,12 @@ export function organizeEntries(entries, subjects, links) {
           if(sourceTitle.includes('默示录的四骑士'))title=`七大罪 默示录的四骑士 第${chinese(explicit?number(explicit[1]):1)}季`;
         } else if (!sourceTitle.startsWith(seriesTitle)) title=`${seriesTitle} · ${sourceTitle}`;
       }
+      // JOJO uses named story arcs on Bangumi; keep those titles while retaining
+      // the independent grouping metadata used by addition-time sorting.
+      if (/^(?:JOJO的奇妙冒险|ジョジョの奇妙な冒険)/i.test(first.sourceTitle||first.title)) {
+        const subject=details.get(entry.id);
+        title=subject?.name_cn||subject?.name||sourceTitle;
+      }
       result.push({...entry,title,sourceTitle,seriesId,seriesTitle,seriesOrder:index+1,addedAt:anchor});
     }
   }

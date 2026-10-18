@@ -5,6 +5,15 @@ import { discoverSeasons, isSeasonSubject, organizeEntries, sameTimeline, sortBy
 const subject=(id,name,platform='TV',extra={})=>({id,type:2,name,name_cn:name,platform,total_episodes:12,...extra});
 const entry=(id,title,date,addedAt='2026-10-18T08:00:00.000Z')=>({id,title,date,addedAt});
 
+test('JOJO keeps Bangumi arc names when regrouping existing and new entries',()=>{
+  const subjects=[subject(43558,'JOJO的奇妙冒险'),subject(150490,'JOJO的奇妙冒险 不灭钻石')];
+  const records=[entry(43558,'JOJO的奇妙冒险 第一季','2012-10-05'),{...entry(150490,'JOJO的奇妙冒险 第三季 · 不灭钻石','2016-04-01'),sourceTitle:'JOJO的奇妙冒险 不灭钻石'}];
+  const result=organizeEntries(records,subjects,[[43558,150490]]);
+  assert.deepEqual(result.map(x=>x.title),subjects.map(x=>x.name_cn));
+  assert.deepEqual(result.map(x=>x.seriesOrder),[1,2]);
+  assert.ok(result.every(x=>x.seriesId===43558));
+});
+
 test('TV specials, recaps, films and OVA are not automatic seasons',()=>{
   assert.equal(isSeasonSubject(subject(1,'作品 第一季')),true);
   assert.equal(isSeasonSubject(subject(2,'作品 第二季','TV',{total_episodes:0})),true);

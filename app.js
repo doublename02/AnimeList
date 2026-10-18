@@ -1,4 +1,4 @@
-import { discoverSeasons, isSeasonSubject, organizeEntries, sortByAdded } from './series.mjs?v=sort-direction-2';
+import { discoverSeasons, isSeasonSubject, organizeEntries, sortByAdded } from './series.mjs?v=jojo-titles-1';
 import { normalizeLibrary as normalize, safeCover, nextAddedAt } from './library.mjs?v=addition-order-1';
 import { GitHubSync } from './sync.mjs?v=github-sync-2';
 const $ = s => document.querySelector(s);
