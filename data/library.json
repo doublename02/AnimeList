@@ -6129,10 +6129,10 @@
     "season": "autumn",
     "date": "2012-10-05",
     "note": "",
-    "addedAt": "2026-10-18T08:04:23.000Z",
+    "addedAt": "2026-10-18T11:43:53.987Z",
     "seriesId": 43558,
     "seriesTitle": "JOJO的奇妙冒险",
-    "seriesOrder": 1,
+    "seriesOrder": 2,
     "sourceTitle": "JOJO的奇妙冒险"
   },
   {
@@ -6145,10 +6145,10 @@
     "season": "spring",
     "date": "2014-04-04",
     "note": "",
-    "addedAt": "2026-10-18T08:04:23.000Z",
+    "addedAt": "2026-10-18T11:43:53.987Z",
     "seriesId": 43558,
     "seriesTitle": "JOJO的奇妙冒险",
-    "seriesOrder": 2,
+    "seriesOrder": 3,
     "sourceTitle": "JOJO的奇妙冒险 星尘斗士"
   },
   {
@@ -6161,10 +6161,10 @@
     "season": "winter",
     "date": "2015-01-09",
     "note": "",
-    "addedAt": "2026-10-18T08:04:23.000Z",
+    "addedAt": "2026-10-18T11:43:53.987Z",
     "seriesId": 43558,
     "seriesTitle": "JOJO的奇妙冒险",
-    "seriesOrder": 3,
+    "seriesOrder": 4,
     "sourceTitle": "JOJO的奇妙冒险 星尘斗士 埃及篇"
   },
   {
@@ -6177,10 +6177,10 @@
     "season": "spring",
     "date": "2016-04-01",
     "note": "",
-    "addedAt": "2026-10-18T08:04:23.000Z",
+    "addedAt": "2026-10-18T11:43:53.987Z",
     "seriesId": 43558,
     "seriesTitle": "JOJO的奇妙冒险",
-    "seriesOrder": 4,
+    "seriesOrder": 5,
     "sourceTitle": "JOJO的奇妙冒险 不灭钻石"
   },
   {
@@ -6193,10 +6193,10 @@
     "season": "autumn",
     "date": "2018-10-05",
     "note": "",
-    "addedAt": "2026-10-18T08:04:23.000Z",
+    "addedAt": "2026-10-18T11:43:53.987Z",
     "seriesId": 43558,
     "seriesTitle": "JOJO的奇妙冒险",
-    "seriesOrder": 5,
+    "seriesOrder": 6,
     "sourceTitle": "JOJO的奇妙冒险 黄金之风"
   },
   {
@@ -6209,10 +6209,10 @@
     "season": "winter",
     "date": "2022-01-07",
     "note": "",
-    "addedAt": "2026-10-18T08:04:23.000Z",
+    "addedAt": "2026-10-18T11:43:53.987Z",
     "seriesId": 43558,
     "seriesTitle": "JOJO的奇妙冒险",
-    "seriesOrder": 6,
+    "seriesOrder": 7,
     "sourceTitle": "JOJO的奇妙冒险 石之海"
   },
   {
@@ -6225,10 +6225,10 @@
     "season": "autumn",
     "date": "2022-10-07",
     "note": "",
-    "addedAt": "2026-10-18T08:04:23.000Z",
+    "addedAt": "2026-10-18T11:43:53.987Z",
     "seriesId": 43558,
     "seriesTitle": "JOJO的奇妙冒险",
-    "seriesOrder": 7,
+    "seriesOrder": 8,
     "sourceTitle": "JOJO的奇妙冒险 石之海 第2部分"
   },
   {
@@ -6241,10 +6241,10 @@
     "season": "winter",
     "date": "2023-01-06",
     "note": "",
-    "addedAt": "2026-10-18T08:04:23.000Z",
+    "addedAt": "2026-10-18T11:43:53.987Z",
     "seriesId": 43558,
     "seriesTitle": "JOJO的奇妙冒险",
-    "seriesOrder": 8,
+    "seriesOrder": 9,
     "sourceTitle": "JOJO的奇妙冒险 石之海 第3部分"
   },
   {
@@ -13329,7 +13329,11 @@
     "season": "winter",
     "date": "2026-03-19",
     "note": "",
-    "addedAt": "2026-10-18T11:39:15.518Z"
+    "addedAt": "2026-10-18T11:43:53.987Z",
+    "seriesId": 43558,
+    "seriesTitle": "JOJO的奇妙冒险",
+    "seriesOrder": 10,
+    "sourceTitle": "飙马野郎 JOJO的奇妙冒险 第一赛段"
   },
   {
     "id": 639938,
@@ -13341,7 +13345,11 @@
     "season": "summer",
     "date": "2026-09-25",
     "note": "",
-    "addedAt": "2026-10-18T11:39:22.286Z"
+    "addedAt": "2026-10-18T11:43:53.987Z",
+    "seriesId": 43558,
+    "seriesTitle": "JOJO的奇妙冒险",
+    "seriesOrder": 11,
+    "sourceTitle": "飙马野郎 JOJO的奇妙冒险 第二&第三赛段"
   },
   {
     "id": 513878,
@@ -13365,6 +13373,10 @@
     "season": "winter",
     "date": "2007-02-17",
     "note": "",
-    "addedAt": "2026-10-18T11:43:53.987Z"
+    "addedAt": "2026-10-18T11:43:53.987Z",
+    "seriesId": 43558,
+    "seriesTitle": "JOJO的奇妙冒险",
+    "seriesOrder": 1,
+    "sourceTitle": "JOJO的奇妙冒险 幻影血脉"
   }
 ]

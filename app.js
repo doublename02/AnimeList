@@ -1,5 +1,5 @@
 import { discoverSeasons, isSeasonSubject, organizeEntries, sortByAdded } from './series.mjs?v=jojo-titles-1';
-import { normalizeLibrary as normalize, safeCover, nextAddedAt } from './library.mjs?v=addition-order-1';
+import { normalizeLibrary as normalize, safeCover, nextAddedAt } from './library.mjs?v=jojo-group-1';
 import { GitHubSync } from './sync.mjs?v=github-sync-2';
 const $ = s => document.querySelector(s);
 const seasons = {winter:'冬',spring:'春',summer:'夏',autumn:'秋'};

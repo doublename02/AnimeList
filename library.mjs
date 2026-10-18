@@ -20,12 +20,19 @@ export function safeCover(value) {
 export function normalizeLibrary(items) {
   if(!Array.isArray(items)||items.length>MAX_ENTRIES)throw new Error('清单应为作品数组，最多 10000 条');
   const ids=new Set();
-  return items.map(x=>{
+  const normalized=items.map(x=>{
     if(!x||!Number.isSafeInteger(Number(x.id))||Number(x.id)<=0||typeof x.title!=='string'||!x.title.trim()||ids.has(Number(x.id)))throw new Error('作品 ID、名称无效，或存在重复作品');
     ids.add(Number(x.id));
     const group=Number.isSafeInteger(Number(x.seriesId))&&Number(x.seriesId)>0?{seriesId:Number(x.seriesId),seriesTitle:String(x.seriesTitle||'').slice(0,200),seriesOrder:Math.max(1,Math.min(10000,Number(x.seriesOrder)||1)),sourceTitle:String(x.sourceTitle||x.title).slice(0,200)}:{};
     return {id:Number(x.id),title:x.title.slice(0,200),original:String(x.original||'').slice(0,200),cover:safeCover(x.cover),studio:String(x.studio||'').slice(0,200),year:Number.isInteger(Number(x.year))&&Number(x.year)>=1900&&Number(x.year)<=2200?Number(x.year):'',season:seasons.has(x.season)?x.season:'',date:String(x.date||''),note:String(x.note||'').slice(0,2000),addedAt:Number.isFinite(Date.parse(x.addedAt))?x.addedAt:new Date().toISOString(),...group};
   });
+  // Bangumi may split Steel Ball Run from the older animation relationship
+  // graph. Keep JOJO's named arcs in one shelf group without renaming them.
+  const jojo=normalized.filter(x=>/(?:JOJO的奇妙冒险|ジョジョの奇妙な冒険)/i.test([x.title,x.original,x.sourceTitle].join(' ')));
+  jojo.sort((a,b)=>(a.date||'9999').localeCompare(b.date||'9999')||a.id-b.id);
+  const anchor=jojo.reduce((latest,x)=>Date.parse(x.addedAt)>Date.parse(latest||0)?x.addedAt:latest,'');
+  jojo.forEach((x,index)=>Object.assign(x,{seriesId:43558,seriesTitle:'JOJO的奇妙冒险',seriesOrder:index+1,sourceTitle:x.sourceTitle||x.title,addedAt:anchor}));
+  return normalized;
 }
 
 // Reject invalid writes rather than silently truncating a server-side request.
