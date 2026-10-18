@@ -105,7 +105,7 @@ export function organizeEntries(entries, subjects, links) {
       }
       // JOJO uses named story arcs on Bangumi; keep those titles while retaining
       // the independent grouping metadata used by addition-time sorting.
-      if (/^(?:JOJO的奇妙冒险|ジョジョの奇妙な冒険)/i.test(first.sourceTitle||first.title)) {
+      if (/(?:JOJO的奇妙冒险|ジョジョの奇妙な冒険)/i.test(first.sourceTitle||first.title)) {
         const subject=details.get(entry.id);
         title=subject?.name_cn||subject?.name||sourceTitle;
       }
