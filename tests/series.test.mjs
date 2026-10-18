@@ -42,12 +42,19 @@ test('sword art season three retains separate named parts',()=>{
   assert.equal(organized[3].sourceTitle,titles[3]);
 });
 
-test('recently added sort moves a whole series and orders its seasons ascending',()=>{
+test('added sort reverses both series and seasons, including a filtered single series',()=>{
   const rows=[{id:1,seriesId:1,seriesOrder:1,addedAt:'2020-01-01'},{id:2,seriesId:1,seriesOrder:2,addedAt:'2026-01-01'},{id:3,addedAt:'2025-01-01'}];
-  assert.deepEqual(sortByAdded([...rows].reverse()).map(x=>x.id),[1,2,3]);
-  assert.deepEqual(sortByAdded([rows[1],rows[0]]).map(x=>x.id),[1,2]);
+  assert.deepEqual(sortByAdded([...rows].reverse()).map(x=>x.id),[2,1,3]);
+  assert.deepEqual(sortByAdded([rows[1],rows[0]],'desc').map(x=>x.id),[2,1]);
+  assert.deepEqual(sortByAdded([rows[1],rows[0]],'asc').map(x=>x.id),[1,2]);
   assert.deepEqual(sortByAdded([...rows],'asc').map(x=>x.id),[3,1,2]);
-  assert.deepEqual(sortByAdded([...rows],'desc').map(x=>x.id),[1,2,3]);
+  assert.deepEqual(sortByAdded([...rows],'desc').map(x=>x.id),[2,1,3]);
+});
+
+test('equal addition timestamps still produce fully reversed deterministic orders',()=>{
+  const rows=[{id:1,seriesId:1,seriesOrder:1,addedAt:'2026-01-01'},{id:2,seriesId:1,seriesOrder:2,addedAt:'2026-01-01'},{id:3,addedAt:'2026-01-01'}];
+  const ascending=sortByAdded([...rows],'asc').map(x=>x.id);
+  assert.deepEqual(sortByAdded([...rows],'desc').map(x=>x.id),ascending.reverse());
 });
 
 test('an incomplete network traversal rejects before any additions are returned',async()=>{

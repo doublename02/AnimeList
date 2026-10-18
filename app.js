@@ -1,4 +1,4 @@
-import { discoverSeasons, isSeasonSubject, organizeEntries, sortByAdded } from './series.mjs';
+import { discoverSeasons, isSeasonSubject, organizeEntries, sortByAdded } from './series.mjs?v=sort-direction-2';
 const $ = s => document.querySelector(s);
 const seasons = {winter:'冬',spring:'春',summer:'夏',autumn:'秋'};
 const KEY = 'anime-shelf-v1';

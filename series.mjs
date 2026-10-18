@@ -114,8 +114,9 @@ export function sortByAdded(entries, direction='desc') {
   for(const entry of entries){const key=entry.seriesId||entry.id;anchors.set(key,Math.max(anchors.get(key)||0,Date.parse(entry.addedAt)||0));}
   return entries.sort((a,b)=>{
     const left=a.seriesId||a.id,right=b.seriesId||b.id;
-    if(left===right)return (a.seriesOrder||1)-(b.seriesOrder||1)||a.id-b.id;
-    const comparison=anchors.get(left)-anchors.get(right);
-    return (direction==='asc'?comparison:-comparison)||left-right;
+    const comparison=left===right
+      ? (a.seriesOrder||1)-(b.seriesOrder||1)||a.id-b.id
+      : anchors.get(left)-anchors.get(right)||left-right;
+    return direction==='asc'?comparison:-comparison;
   });
 }
