@@ -12484,22 +12484,6 @@
     "sourceTitle": "Fate/stay night [Unlimited Blade Works]"
   },
   {
-    "id": 109386,
-    "title": "Fate/stay night [Unlimited Blade Works] 第二季",
-    "original": "Fate/stay night [Unlimited Blade Works] 2ndシーズン",
-    "cover": "https://lain.bgm.tv/pic/cover/l/b2/e7/109386_q20wy.jpg",
-    "studio": "ufotable",
-    "year": 2015,
-    "season": "spring",
-    "date": "2015-04-04",
-    "note": "",
-    "addedAt": "2026-10-18T08:00:18.000Z",
-    "seriesId": 95225,
-    "seriesTitle": "Fate/stay night [Unlimited Blade Works]",
-    "seriesOrder": 2,
-    "sourceTitle": "Fate/stay night [Unlimited Blade Works] 第二季"
-  },
-  {
     "id": 10639,
     "title": "Fate/Zero",
     "original": "Fate/Zero",
@@ -13318,5 +13302,21 @@
     "seriesTitle": "JOJO的奇妙冒险",
     "seriesOrder": 1,
     "sourceTitle": "JOJO的奇妙冒险 幻影血脉"
+  },
+  {
+    "id": 109386,
+    "title": "Fate/stay night ",
+    "original": "Fate/stay night [Unlimited Blade Works] 2ndシーズン",
+    "cover": "https://lain.bgm.tv/pic/cover/l/b2/e7/109386_q20wy.jpg",
+    "studio": "ufotable",
+    "year": 2015,
+    "season": "spring",
+    "date": "2015-04-04",
+    "note": "",
+    "addedAt": "2026-10-18T08:00:18.000Z",
+    "seriesId": 95225,
+    "seriesTitle": "Fate/stay night [Unlimited Blade Works]",
+    "seriesOrder": 2,
+    "sourceTitle": "Fate/stay night [Unlimited Blade Works] 第二季"
   }
 ]
