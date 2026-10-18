@@ -12136,18 +12136,6 @@
     "addedAt": "2026-10-18T11:33:57.287Z"
   },
   {
-    "id": 511177,
-    "title": "遭到流放的转生重骑士凭借游戏知识大开无双",
-    "original": "追放された転生重騎士はゲーム知識で無双する",
-    "cover": "https://lain.bgm.tv/pic/cover/l/8f/47/511177_JOC1M.jpg",
-    "studio": "GoHands",
-    "year": 2026,
-    "season": "summer",
-    "date": "2026-07-02",
-    "note": "",
-    "addedAt": "2026-10-18T11:35:54.692Z"
-  },
-  {
     "id": 590553,
     "title": "铁旅！meet with 铁道少女",
     "original": "てつりょー！meet with 鉄道むすめ",
@@ -12406,5 +12394,17 @@
     "date": "2026-10-09",
     "note": "",
     "addedAt": "2026-10-18T23:29:22.875Z"
+  },
+  {
+    "id": 511177,
+    "title": "遭到流放的转生重骑士凭借游戏知识大开无双",
+    "original": "追放された転生重騎士はゲーム知識で無双する",
+    "cover": "https://lain.bgm.tv/pic/cover/l/8f/47/511177_JOC1M.jpg",
+    "studio": "GoHands",
+    "year": 2026,
+    "season": "summer",
+    "date": "2026-07-02",
+    "note": "",
+    "addedAt": "2026-10-18T23:30:11.964Z"
   }
 ]
