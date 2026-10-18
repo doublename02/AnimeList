@@ -32,8 +32,12 @@ function render() {
   $('#stats').innerHTML=`<div><b>${library.length.toString().padStart(2,'0')}</b><span>部作品</span></div><div><b>${new Set(library.map(x=>x.year).filter(Boolean)).size.toString().padStart(2,'0')}</b><span>个放送年份</span></div>`;
   const query=$('#filter').value.trim().toLowerCase();
   const list=library.filter(x=>(!$('#year').value||String(x.year)===$('#year').value)&&(!$('#season').value||x.season===$('#season').value)&&[x.title,x.original,x.studio,x.sourceTitle].join(' ').toLowerCase().includes(query));
-  if($('#sort').value==='added')sortByAdded(list);
-  else list.sort((a,b)=>$('#sort').value==='title'?a.title.localeCompare(b.title,'zh-CN'):String(b.date||b.year).localeCompare(String(a.date||a.year)));
+  const direction=$('#direction').value;
+  if($('#sort').value==='added')sortByAdded(list,direction);
+  else list.sort((a,b)=>{
+    const comparison=$('#sort').value==='title'?a.title.localeCompare(b.title,'zh-CN'):String(a.date||a.year).localeCompare(String(b.date||b.year));
+    return direction==='asc'?comparison:-comparison;
+  });
   $('#count').textContent=list.length;
   $('#grid').innerHTML=list.length?list.map(x=>`<article class="card"><button class="cover-button" data-edit="${x.id}" aria-label="编辑 ${escape(x.title)}"><img class="poster" src="${escape(x.cover)}" alt="${escape(x.title)}封面" loading="lazy" referrerpolicy="no-referrer"></button><h3 title="${escape(x.title)}">${escape(x.title)}</h3><p class="original">${escape(x.original)}</p><div class="meta"><span>${escape(x.studio||'制作公司待补充')}</span><span>${x.year||'未知'}${seasons[x.season]?' · '+seasons[x.season]:''}</span></div></article>`).join(''):'<div class="empty">书架在等下一个故事。<br><br>添加一部作品，或调整筛选条件。</div>';
   $('#grid').querySelectorAll('img').forEach(img=>img.onerror=()=>{img.removeAttribute('src');img.onerror=null;});
@@ -59,7 +63,7 @@ function edit(item, existing=false, additions=[]) {
 $('#add').onclick=()=>{$('#searchDialog').showModal();$('#query').focus();};
 document.querySelectorAll('.close').forEach(button=>button.onclick=()=>button.closest('dialog').close());
 $('#searchDialog').addEventListener('close',()=>searchController?.abort());
-for(const selector of ['#filter','#year','#season','#sort']) $(selector).addEventListener(selector==='#filter'?'input':'change',render);
+for(const selector of ['#filter','#year','#season','#sort','#direction']) $(selector).addEventListener(selector==='#filter'?'input':'change',render);
 $('#grid').onclick=e=>{const button=e.target.closest('[data-edit]');if(button)edit(library.find(x=>x.id===Number(button.dataset.edit)),true);};
 $('#searchForm').onsubmit=async e=>{
   e.preventDefault(); const query=$('#query').value.trim(); if(!query)return;

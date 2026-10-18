@@ -109,12 +109,13 @@ export function organizeEntries(entries, subjects, links) {
   return result;
 }
 
-export function sortByAdded(entries) {
+export function sortByAdded(entries, direction='desc') {
   const anchors=new Map();
   for(const entry of entries){const key=entry.seriesId||entry.id;anchors.set(key,Math.max(anchors.get(key)||0,Date.parse(entry.addedAt)||0));}
   return entries.sort((a,b)=>{
     const left=a.seriesId||a.id,right=b.seriesId||b.id;
     if(left===right)return (a.seriesOrder||1)-(b.seriesOrder||1)||a.id-b.id;
-    return anchors.get(right)-anchors.get(left)||left-right;
+    const comparison=anchors.get(left)-anchors.get(right);
+    return (direction==='asc'?comparison:-comparison)||left-right;
   });
 }
