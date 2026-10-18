@@ -1,4 +1,4 @@
-import { normalizeLibrary } from './library.mjs';
+import { normalizeLibrary } from './library.mjs?v=jojo-group-1';
 
 const equal=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
 const clone=value=>JSON.parse(JSON.stringify(value));
