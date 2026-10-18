@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 const root=fileURLToPath(new URL('../',import.meta.url));
-const allowed=new Set(['/','/index.html','/app.js','/series.mjs','/library.mjs','/sync.mjs','/sync-config.json','/style.css','/data/library.json']);
+const allowed=new Set(['/','/index.html','/favicon.jpg','/app.js','/series.mjs','/library.mjs','/sync.mjs','/sync-config.json','/style.css','/data/library.json']);
 const mime={'.html':'text/html; charset=utf-8','.css':'text/css','.js':'text/javascript','.mjs':'text/javascript','.json':'application/json','.jpg':'image/jpeg'};
 http.createServer(async(request,response)=>{
   try{
