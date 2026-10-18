@@ -7284,22 +7284,6 @@
     "sourceTitle": "黑色五叶草"
   },
   {
-    "id": 567896,
-    "title": "黑色五叶草 第二季",
-    "original": "ブラッククローバー 2nd Season",
-    "cover": "https://lain.bgm.tv/pic/cover/l/be/e7/567896_RWffW.jpg",
-    "studio": "スタジオぴえろ",
-    "year": 2026,
-    "season": "autumn",
-    "date": "2026-10-03",
-    "note": "",
-    "addedAt": "2026-10-18T08:03:07.000Z",
-    "seriesId": 202880,
-    "seriesTitle": "黑色五叶草",
-    "seriesOrder": 2,
-    "sourceTitle": "黑色五叶草 第二季"
-  },
-  {
     "id": 185442,
     "title": "悠久持有者！",
     "original": "UQ HOLDER!～魔法先生ネギま！2～",
@@ -12370,5 +12354,21 @@
     "date": "2026-10-03",
     "note": "",
     "addedAt": "2026-10-18T23:27:39.001Z"
+  },
+  {
+    "id": 567896,
+    "title": "黑色五叶草 第二季",
+    "original": "ブラッククローバー 2nd Season",
+    "cover": "https://lain.bgm.tv/pic/cover/l/be/e7/567896_RWffW.jpg",
+    "studio": "スタジオぴえろ",
+    "year": 2026,
+    "season": "autumn",
+    "date": "2026-10-03",
+    "note": "",
+    "addedAt": "2026-10-18T23:27:54.606Z",
+    "seriesId": 202880,
+    "seriesTitle": "黑色五叶草",
+    "seriesOrder": 2,
+    "sourceTitle": "黑色五叶草 第二季"
   }
 ]
