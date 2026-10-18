@@ -1,6 +1,18 @@
 # Anime Shelf · 我的动画手账
 
-无需构建、无需安装依赖的静态动画清单，适配电脑与手机，可部署到 GitHub Pages。
+记录收藏动画的个人静态网站，作品资料来自 Bangumi，适配电脑与手机。无需构建、无需安装依赖，已部署到 GitHub Pages。
+
+**在线访问：[Anime Shelf](https://doublename02.github.io/AnimeList/)**
+
+## 功能
+
+- 按中文名或原名搜索 Bangumi 动画作品并添加到书架。
+- 展示封面、中日文名称、制作公司、首播年份和季度。
+- 编辑作品资料和个人短评，移除作品。
+- 按名称或制作公司搜索收藏，按年份、季度筛选，按添加时间、放送时间或名称排序。
+- 导入、导出 JSON 清单，支持当前浏览器本地保存。
+
+网站不记录观看状态。
 
 ## 本地预览
 
@@ -14,11 +26,48 @@
 - 制作公司优先取 Bangumi 的“动画制作”字段，资料缺失时可手动补充。
 - 修改自动保存到当前浏览器的 localStorage；清除网站数据或换设备后，本地修改不会保留。
 - “导出清单”下载完整的 `library.json`；用它替换仓库里的 `data/library.json` 并提交，重新部署后其他设备和访客即可看到。已有本地清单的浏览器会继续优先使用本地版本，可通过“导入清单”替换。
-- 导入会替换当前清单，建议先导出备份。不会自动覆盖 Obsidian 笔记。
+- 导入会替换当前清单，建议先导出备份。
 
 初始数据从《刀剑神域》Obsidian 记录迁入，保留网站使用的封面。原 Obsidian 笔记、设置及插件已清理；后续通过网页维护清单。
 
-## 部署到自己的 GitHub
+## 更新清单并同步网站
+
+目前尚未实现自动同步到 GitHub，也没有云端数据库。网页中的新增、修改及删除仅保存在操作时使用的浏览器中。
+
+1. 在网页完成编辑后，点击“导出清单”，下载 `library.json`。
+2. 将文件替换到本仓库的 `data/library.json` 并提交到 `main` 分支。
+3. 等待 [GitHub Actions](https://github.com/doublename02/AnimeList/actions/workflows/pages.yml) 部署成功，公开网站即会更新。
+
+首次访问的设备会读取仓库中的清单。已有本地清单的浏览器仍优先使用本地版本，需要通过“导入清单”导入最新 JSON。访客的编辑只影响自己的浏览器。
+
+## 导入格式
+
+接受 `.json` 文件，内容为作品数组。推荐直接使用网页导出的文件。`id` 是唯一的正整数 Bangumi 作品 ID，`title` 是非空作品名称，两项必填，其余字段可省略。
+
+```json
+[
+  {
+    "id": 23686,
+    "title": "刀剑神域",
+    "original": "ソードアート・オンライン",
+    "cover": "https://lain.bgm.tv/pic/cover/l/2e/c8/23686_e36x9.jpg",
+    "studio": "A-1 Pictures",
+    "year": 2012,
+    "season": "summer",
+    "date": "2012-07-07",
+    "note": "",
+    "addedAt": "2026-10-18T02:38:00.000Z"
+  }
+]
+```
+
+`season` 可填 `winter`、`spring`、`summer`、`autumn`，或留空。封面支持 HTTPS 链接，或项目内 `AnimeList/Covers/` 下的相对路径；使用本地封面时，图片也需提交到仓库。导入文件最大 10 MB，最多 10000 部作品，ID 不能重复。旧清单中的观看状态字段会在读取时移除。
+
+## 部署说明
+
+本仓库已启用 GitHub Pages，使用 `.github/workflows/pages.yml` 发布。提交到 `main` 分支会自动部署，也可以在 Actions 页面手动运行 **Deploy GitHub Pages**。
+
+如需部署到其他仓库：
 
 1. 在 GitHub 创建仓库，把本目录文件上传到仓库的 `main` 分支，包含隐藏目录 `.github`。
 2. 打开仓库 **Settings → Pages → Build and deployment**，Source 选择 **GitHub Actions**。
@@ -33,4 +82,4 @@
 
 公开页面没有身份验证；访客的编辑只影响自己的浏览器，不能修改你的 GitHub 仓库。若希望直接在网页里保存到 GitHub、跨设备自动同步，需要后续增加安全的登录和写入服务。
 
-Bangumi 官方 API 文档：https://bangumi.github.io/api/
+Bangumi 官方 API 文档：[bangumi.github.io/api](https://bangumi.github.io/api/)
