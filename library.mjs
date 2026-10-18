@@ -2,6 +2,13 @@ export const MAX_ENTRIES = 10000;
 export const MAX_BYTES = 10 * 1024 * 1024;
 const seasons = new Set(['winter','spring','summer','autumn']);
 
+// Imported timestamps or a changed device clock must not place a new addition
+// behind entries already on the shelf. Use one timestamp for the whole batch.
+export function nextAddedAt(entries, now=Date.now()) {
+  const latest=entries.reduce((max,entry)=>Math.max(max,Date.parse(entry.addedAt)||0),0);
+  return new Date(Math.max(now,latest+1)).toISOString();
+}
+
 export function safeCover(value) {
   if (typeof value !== 'string') return '';
   if (/^https:\/\//i.test(value)) {

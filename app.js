@@ -1,5 +1,5 @@
 import { discoverSeasons, isSeasonSubject, organizeEntries, sortByAdded } from './series.mjs?v=sort-direction-2';
-import { normalizeLibrary as normalize, safeCover } from './library.mjs';
+import { normalizeLibrary as normalize, safeCover, nextAddedAt } from './library.mjs?v=addition-order-1';
 import { GitHubSync } from './sync.mjs?v=github-sync-2';
 const $ = s => document.querySelector(s);
 const seasons = {winter:'冬',spring:'春',summer:'夏',autumn:'秋'};
@@ -81,15 +81,15 @@ $('#results').onclick=async e=>{
     const graph=$('#allSeasons').checked?await discoverSeasons(x,load):{subjects:[x],links:[]};
     const selected=graph.subjects.filter(subject=>subject.id===x.id||isSeasonSubject(subject)||library.some(item=>item.id===subject.id));
     const flatten=value=>typeof value==='string'?value:Array.isArray(value)?value.map(v=>typeof v==='string'?v:v.v||'').filter(Boolean).join(' / '):'';
-    const records=[];
+    const records=[], addedAt=nextAddedAt(library);
     for(const subject of selected){
       const prior=library.find(item=>item.id===subject.id);
-      if(prior){records.push({...prior,addedAt:new Date().toISOString()});continue;}
+      if(prior){records.push({...prior,addedAt});continue;}
       const info=(subject.infobox||[]).filter(field=>field.key==='动画制作');
       let studio=info.map(field=>flatten(field.value)).filter(Boolean).join(' / ');
       if(!studio){const people=await load(`/v0/subjects/${subject.id}/persons`);studio=[...new Set(people.filter(person=>person.relation==='动画制作').map(person=>person.name))].join(' / ');}
       const month=Number((subject.date||'').slice(5,7));
-      records.push({id:subject.id,title:subject.name_cn||subject.name,original:subject.name,cover:safeCover(subject.images?.large||subject.images?.common),studio,year:Number((subject.date||'').slice(0,4))||'',season:month?['winter','spring','summer','autumn'][Math.floor((month-1)/3)]:'',date:subject.date||'',note:'',addedAt:new Date().toISOString()});
+      records.push({id:subject.id,title:subject.name_cn||subject.name,original:subject.name,cover:safeCover(subject.images?.large||subject.images?.common),studio,year:Number((subject.date||'').slice(0,4))||'',season:month?['winter','spring','summer','autumn'][Math.floor((month-1)/3)]:'',date:subject.date||'',note:'',addedAt});
     }
     const additions=organizeEntries(records,graph.subjects,graph.links);
     if(signal.aborted)return;

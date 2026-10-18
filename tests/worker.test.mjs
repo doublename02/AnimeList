@@ -14,7 +14,7 @@ async function request(path,options={}){const token=await session();return new R
 
 test('published library satisfies the server write schema',async()=>{
   const library=JSON.parse(await readFile(new URL('../data/library.json',import.meta.url),'utf8'));
-  assert.equal(validateLibrary(library).length,916);
+  assert.equal(validateLibrary(library).length,library.length);
 });
 
 test('unauthenticated writes and disallowed origins cannot reach GitHub',async()=>{
