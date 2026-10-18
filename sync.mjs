@@ -37,7 +37,7 @@ export function resolveMerge(merge,choices={}){
 }
 
 export class GitHubSync {
-  constructor({apiBase='',onLibrary=()=>{},onState=()=>{},storage=globalThis.localStorage,sessionStorage=globalThis.sessionStorage,fetcher=globalThis.fetch,delay=700}={}){
+  constructor({apiBase='',onLibrary=()=>{},onState=()=>{},storage=globalThis.localStorage,sessionStorage=globalThis.sessionStorage,fetcher=(...args)=>globalThis.fetch(...args),delay=700}={}){
     this.apiBase=apiBase.replace(/\/$/,'');this.onLibrary=onLibrary;this.onState=onState;this.storage=storage;this.sessionStorage=sessionStorage;this.fetcher=fetcher;this.delay=delay;
     this.key='anime-shelf-sync-v1';this.sessionKey=this.key+':'+this.apiBase;this.version=0;this.phase='loading';this.user=null;this.library=[];this.baseLibrary=[];this.sha=null;this.dirty=false;this.saving=false;this.conflict=null;this.message='正在读取清单…';this.lastCommitUrl='';
     try{this.token=sessionStorage.getItem(this.sessionKey)||'';}catch{this.token='';}
