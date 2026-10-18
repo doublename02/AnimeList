@@ -5,6 +5,14 @@ import { GitHubSync, mergeLibraries, resolveMerge } from '../sync.mjs';
 const entry=(id,note='')=>({id,title:'作品 '+id,original:'',cover:'',studio:'',year:2020,season:'winter',date:'2020-01-01',note,addedAt:'2026-10-18T08:00:00.000Z'});
 const memory=()=>{const data=new Map();return{getItem:key=>data.get(key)||null,setItem:(key,value)=>data.set(key,value),removeItem:key=>data.delete(key)};};
 const json=(value,status=200)=>new Response(JSON.stringify(value),{status,headers:{'Content-Type':'application/json'}});
+test('default fetch keeps the browser global receiver',async()=>{
+  const original=globalThis.fetch;
+  globalThis.fetch=function(){assert.equal(this,globalThis);return Promise.resolve(json({ok:true}));};
+  try{
+    const sync=new GitHubSync({apiBase:'https://sync.example',storage:memory(),sessionStorage:memory()});
+    assert.deepEqual(await sync.api('/health'),{ok:true});
+  }finally{globalThis.fetch=original;}
+});
 function setup(t,fetcher){
   const storage=memory(),sessionStorage=memory();
   const sync=new GitHubSync({apiBase:'https://sync.example',storage,sessionStorage,fetcher,delay:1000000});
